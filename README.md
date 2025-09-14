@@ -11,7 +11,7 @@ O sistema a ser desenvolvido é um **ToDo App** acessível via web.
 Ele permitirá que os usuários:
 
 - Criem novas tarefas;  
-- Definam **deadlines** para cada tarefa;  
+- Definam deadlines para cada tarefa;  
 - Marquem tarefas como concluídas;  
 - Visualizem as tarefas pendentes e completas em uma lista organizada.  
 
