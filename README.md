@@ -10,7 +10,10 @@
 O sistema a ser desenvolvido é um **ToDo App** acessível via web.  
 Ele permitirá que os usuários:
 
-- Se registrem e se autentiquem
+DONE: 
+- Se registrem, se autentiquem e saiam de suas contas; ✅
+
+TODO:
 - Criem novas tarefas;
 - Definam deadlines para cada tarefa;  
 - Marquem tarefas como concluídas;  
