@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/HenriqueDSousa/todo-app/graph/badge.svg?token=9THOJE1DZH)](https://codecov.io/gh/HenriqueDSousa/todo-app)
+
 # 1. Membros do Grupo
 
 * Henrique Daniel de Sousa  
