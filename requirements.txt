@@ -1,2 +1,17 @@
 django
 djangorestframework
+
+# Testing dependencies
+coverage
+pytest-django
+pytest
+pytest-cov
+
+# Code quality
+flake8
+black
+isort
+
+# Security
+bandit
+safety
