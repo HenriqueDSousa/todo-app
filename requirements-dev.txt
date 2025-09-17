@@ -1,0 +1,23 @@
+# Development dependencies (extends requirements.txt)
+-r requirements.txt
+
+# Development tools
+django-debug-toolbar
+django-extensions
+
+# Documentation
+sphinx
+sphinx-rtd-theme
+
+# Database tools
+psycopg2-binary
+
+# Testing utilities
+factory-boy
+faker
+model-bakery
+
+# Code formatting and linting
+pre-commit
+mypy
+django-stubs
