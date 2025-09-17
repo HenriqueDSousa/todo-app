@@ -1,0 +1,81 @@
+name: Validate GitHub Actions
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+
+jobs:
+  validate-actions:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate workflow syntax
+      run: |
+        echo "✅ Validating GitHub Actions workflow files..."
+        
+        # Check if workflow files are valid YAML
+        for file in .github/workflows/*.yml .github/workflows/*.yaml; do
+          if [ -f "$file" ]; then
+            echo "Checking $file..."
+            # Use python to validate YAML syntax
+            python -c "
+import yaml
+import sys
+try:
+    with open('$file', 'r') as f:
+        yaml.safe_load(f)
+    print('✅ $file is valid YAML')
+except yaml.YAMLError as e:
+    print('❌ $file has YAML syntax error:', e)
+    sys.exit(1)
+except Exception as e:
+    print('❌ Error reading $file:', e)
+    sys.exit(1)
+"
+          fi
+        done
+        
+    - name: Check for deprecated actions
+      run: |
+        echo "🔍 Checking for deprecated GitHub Actions..."
+        
+        # Check for deprecated action versions
+        DEPRECATED_FOUND=false
+        
+        if grep -r "upload-artifact@v[123]" .github/workflows/; then
+          echo "❌ Found deprecated upload-artifact versions (v1, v2, v3)"
+          DEPRECATED_FOUND=true
+        fi
+        
+        if grep -r "setup-python@v[123]" .github/workflows/; then
+          echo "❌ Found deprecated setup-python versions (v1, v2, v3)"
+          DEPRECATED_FOUND=true
+        fi
+        
+        if grep -r "cache@v[12]" .github/workflows/; then
+          echo "❌ Found deprecated cache versions (v1, v2)"
+          DEPRECATED_FOUND=true
+        fi
+        
+        if grep -r "codecov-action@v[123]" .github/workflows/; then
+          echo "❌ Found deprecated codecov-action versions (v1, v2, v3)"
+          DEPRECATED_FOUND=true
+        fi
+        
+        if [ "$DEPRECATED_FOUND" = true ]; then
+          echo "❌ Deprecated actions found! Please update them."
+          exit 1
+        else
+          echo "✅ No deprecated actions found!"
+        fi
+        
+    - name: List current action versions
+      run: |
+        echo "📋 Current GitHub Actions versions:"
+        echo "=================================="
+        grep -r "uses: " .github/workflows/ | sed 's/.*uses: //' | sort | uniq
