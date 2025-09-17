@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Todo App{% endblock %}
+
+{% block content %}
+<h1>Welcome to Todo App</h1>
+
+{% if user.is_authenticated %}
+    <h2>Hello, {{ user.username }}!</h2>
+    <p>You are successfully logged in. This is where your todo list will be displayed.</p>
+    
+    <div style="margin-top: 20px;">
+        <h3>Your Account Info:</h3>
+        <ul>
+            <li><strong>Username:</strong> {{ user.username }}</li>
+            <li><strong>Email:</strong> {{ user.email|default:"Not provided" }}</li>
+            <li><strong>Date Joined:</strong> {{ user.date_joined|date:"M d, Y" }}</li>
+            <li><strong>Last Login:</strong> {{ user.last_login|date:"M d, Y H:i"|default:"Never" }}</li>
+        </ul>
+    </div>
+    
+    <a href="{% url 'accounts:logout' %}" class="btn btn-secondary">Logout</a>
+{% else %}
+    <h2>Please log in or register to use the Todo App</h2>
+    <p>This app allows you to:</p>
+    <ul>
+        <li>Create and manage your todo tasks</li>
+        <li>Set deadlines for each task</li>
+        <li>Mark tasks as completed</li>
+        <li>View pending and completed tasks</li>
+        <li>Create tasks for other users</li>
+    </ul>
+    
+    <div style="margin-top: 20px;">
+        <a href="{% url 'accounts:login' %}" class="btn">Login</a>
+        <a href="{% url 'accounts:register' %}" class="btn btn-secondary">Register</a>
+    </div>
+{% endif %}
+{% endblock %}
