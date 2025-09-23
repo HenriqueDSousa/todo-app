@@ -16,6 +16,8 @@ psycopg2-binary
 factory-boy
 faker
 model-bakery
+selenium
+webdriver-manager
 
 # Code formatting and linting
 pre-commit

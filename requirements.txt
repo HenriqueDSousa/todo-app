@@ -1,4 +1,4 @@
-django
+django~=5.2.6
 djangorestframework
 
 # Testing dependencies
@@ -15,3 +15,6 @@ isort
 # Security
 bandit
 safety
+selenium~=4.35.0
+webdriver-manager~=4.0.2
+requests~=2.32.5
