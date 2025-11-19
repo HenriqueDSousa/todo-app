@@ -8,8 +8,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from django.test import tag
 
-
+@tag('e2e')
 @override_settings(DEBUG=True)
 class AccountsLiveServerTestCase(StaticLiveServerTestCase):
     """Base class for accounts live server tests"""
