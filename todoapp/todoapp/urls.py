@@ -23,3 +23,4 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('', home_view, name='home'),
 ]
+#TODO: faltando urls de todos, assim que implementar as views adicionar as urls de todos
