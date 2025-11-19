@@ -195,13 +195,3 @@ Add this badge to your README:
 ```markdown
 ![Tests](https://github.com/HenriqueDSousa/todo-app/workflows/Tests/badge.svg)
 ```
-
-## 💡 Tips
-
-- Run tests frequently during development
-- Use coverage reports to find untested code
-- Write tests before fixing bugs (TDD)
-- Keep test data minimal and focused
-- Use factories for complex object creation
-
-For more information, see the [Django Testing Documentation](https://docs.djangoproject.com/en/stable/topics/testing/).

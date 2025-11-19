@@ -1,3 +1,4 @@
+import os
 import time
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.contrib.auth.models import User
@@ -8,8 +9,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from django.test import tag
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 
-
+@tag('e2e')
 @override_settings(DEBUG=True)
 class AccountsLiveServerTestCase(StaticLiveServerTestCase):
     """Base class for accounts live server tests"""
@@ -17,7 +21,16 @@ class AccountsLiveServerTestCase(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.driver = WebDriver()
+        
+        # Configure Chrome options for headless mode
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--window-size=1920,1080')
+        cls.driver = WebDriver(options=chrome_options)
+        
         cls.driver.implicitly_wait(10)
     
     @classmethod
