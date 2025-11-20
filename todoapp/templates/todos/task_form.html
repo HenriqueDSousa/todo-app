@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Task - Todo App{% endblock %}
+
+{% block content %}
+<h1>{{ action }} Task</h1>
+
+<form method="post">
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+        <div class="errorlist">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+    
+    <div class="form-group">
+        <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+        {{ form.title }}
+        {% if form.title.errors %}
+            <div class="errorlist">{{ form.title.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+        {{ form.description }}
+        {% if form.description.errors %}
+            <div class="errorlist">{{ form.description.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.deadline.id_for_label }}">{{ form.deadline.label }}</label>
+        {{ form.deadline }}
+        {% if form.deadline.errors %}
+            <div class="errorlist">{{ form.deadline.errors }}</div>
+        {% endif %}
+        <small style="color: #666;">Format: YYYY-MM-DD HH:MM</small>
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.priority.id_for_label }}">{{ form.priority.label }}</label>
+        {{ form.priority }}
+        {% if form.priority.errors %}
+            <div class="errorlist">{{ form.priority.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.assigned_to.id_for_label }}">{{ form.assigned_to.label }}</label>
+        {{ form.assigned_to }}
+        {% if form.assigned_to.errors %}
+            <div class="errorlist">{{ form.assigned_to.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <button type="submit" class="btn">Save Task</button>
+        <a href="{% url 'todos:task_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}
+
+
