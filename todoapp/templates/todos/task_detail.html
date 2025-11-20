@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }} - Todo App{% endblock %}
+
+{% block content %}
+<h1>{{ task.title }}</h1>
+
+<div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+    <div style="margin-bottom: 10px;">
+        <strong>Status:</strong> 
+        <span style="padding: 5px 10px; border-radius: 3px; background-color: {% if task.completed %}#28a745{% else %}#ffc107{% endif %}; color: white;">
+            {{ task.get_status_display }}
+        </span>
+    </div>
+    
+    <div style="margin-bottom: 10px;">
+        <strong>Priority:</strong> {{ task.get_priority_display }}
+    </div>
+    
+    {% if task.description %}
+        <div style="margin-bottom: 10px;">
+            <strong>Description:</strong>
+            <p style="margin-top: 5px;">{{ task.description|linebreaks }}</p>
+        </div>
+    {% endif %}
+    
+    {% if task.deadline %}
+        <div style="margin-bottom: 10px;">
+            <strong>Deadline:</strong> {{ task.deadline|date:"M d, Y H:i" }}
+            {% if task.is_overdue %}
+                <span style="color: #dc3545; font-weight: bold;">(OVERDUE)</span>
+            {% elif task.get_days_until_deadline %}
+                <span style="color: #666;">({{ task.get_days_until_deadline }} day{{ task.get_days_until_deadline|pluralize }} remaining)</span>
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    <div style="margin-bottom: 10px;">
+        <strong>Created by:</strong> {{ task.created_by.username }}
+    </div>
+    
+    {% if task.assigned_to %}
+        <div style="margin-bottom: 10px;">
+            <strong>Assigned to:</strong> {{ task.assigned_to.username }}
+        </div>
+    {% endif %}
+    
+    <div style="margin-bottom: 10px;">
+        <strong>Created:</strong> {{ task.created_at|date:"M d, Y H:i" }}
+    </div>
+    
+    <div style="margin-bottom: 10px;">
+        <strong>Last updated:</strong> {{ task.updated_at|date:"M d, Y H:i" }}
+    </div>
+    
+    {% if task.completed_at %}
+        <div style="margin-bottom: 10px;">
+            <strong>Completed at:</strong> {{ task.completed_at|date:"M d, Y H:i" }}
+        </div>
+    {% endif %}
+</div>
+
+<div style="margin-top: 20px;">
+    <a href="{% url 'todos:task_toggle_complete' task.pk %}" class="btn">
+        {% if task.completed %}Mark as Pending{% else %}Mark as Completed{% endif %}
+    </a>
+    
+    {% if task.created_by == user or task.assigned_to == user %}
+        <a href="{% url 'todos:task_update' task.pk %}" class="btn btn-secondary">Edit Task</a>
+    {% endif %}
+    
+    {% if task.created_by == user %}
+        <a href="{% url 'todos:task_delete' task.pk %}" class="btn btn-secondary" style="background-color: #dc3545;">Delete Task</a>
+    {% endif %}
+    
+    <a href="{% url 'todos:task_list' %}" class="btn btn-secondary">Back to Task List</a>
+</div>
+{% endblock %}
+
