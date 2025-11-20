@@ -1,4 +1,4 @@
-name: Unit and Integration Tests
+name: E2E Tests
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - '**'
 
 jobs:
-  test:
+  e2e-test:
     runs-on: ubuntu-latest
     
     strategy:
@@ -28,7 +28,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install coverage pytest-django
+        pip install coverage pytest-django selenium webdriver-manager
+
+    - name: Install Chrome
+      uses: browser-actions/setup-chrome@v1
+      with:
+        chrome-version: stable
 
     - name: Run migrations
       working-directory: ./todoapp
@@ -36,13 +41,8 @@ jobs:
         python manage.py makemigrations
         python manage.py migrate
 
-    - name: Run unit and integration tests with coverage
+    - name: Run E2E tests
       working-directory: ./todoapp
       run: |
-        coverage run --source='.' manage.py test --exclude-tag=e2e --verbosity=2
+        coverage run --source='.' manage.py test accounts.test_accounts_live_server --verbosity=2
         coverage report --show-missing
-
-    - name: Run registration tests
-      working-directory: ./todoapp
-      run: |
-        python test_registration.py
