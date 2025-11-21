@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}My Tasks - Todo App{% endblock %}
+
+{% block content %}
+<h1>My Tasks</h1>
+
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'todos:task_create' %}" class="btn">Create New Task</a>
+</div>
+
+<!-- Filter Form -->
+<form method="get" style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+    <h3>Filter Tasks</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <div class="form-group">
+            <label>{{ filter_form.status.label }}</label>
+            {{ filter_form.status }}
+        </div>
+        <div class="form-group">
+            <label>{{ filter_form.priority.label }}</label>
+            {{ filter_form.priority }}
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; margin-top: 25px;">
+            {{ filter_form.show_completed }}
+            <label style="margin-left: 5px; margin-bottom: 0;">{{ filter_form.show_completed.label }}</label>
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; margin-top: 25px;">
+            {{ filter_form.assigned_to_me }}
+            <label style="margin-left: 5px; margin-bottom: 0;">{{ filter_form.assigned_to_me.label }}</label>
+        </div>
+    </div>
+    <button type="submit" class="btn" style="margin-top: 10px;">Apply Filters</button>
+    <a href="{% url 'todos:task_list' %}" class="btn btn-secondary" style="margin-top: 10px;">Clear Filters</a>
+</form>
+
+{% if overdue_count > 0 %}
+    <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+        <strong>Warning:</strong> You have {{ overdue_count }} overdue task{{ overdue_count|pluralize }}!
+    </div>
+{% endif %}
+
+<!-- Task List -->
+{% if tasks %}
+    <div style="display: grid; gap: 15px;">
+        {% for task in tasks %}
+            <div style="border: 1px solid #ddd; border-radius: 5px; padding: 15px; background-color: {% if task.is_overdue %}#fff3cd{% elif task.completed %}#d4edda{% else %}#ffffff{% endif %};">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <h3 style="margin-top: 0;">
+                            <a href="{% url 'todos:task_detail' task.pk %}" style="text-decoration: none; color: inherit;">
+                                {{ task.title }}
+                            </a>
+                            {% if task.is_overdue %}
+                                <span style="background-color: #dc3545; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px;">OVERDUE</span>
+                            {% endif %}
+                            {% if task.completed %}
+                                <span style="background-color: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px;">COMPLETED</span>
+                            {% endif %}
+                        </h3>
+                        {% if task.description %}
+                            <p style="color: #666;">{{ task.description|truncatewords:20 }}</p>
+                        {% endif %}
+                        <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                            <strong>Priority:</strong> {{ task.get_priority_display }}
+                            | <strong>Status:</strong> {{ task.get_status_display }}
+                            {% if task.deadline %}
+                                | <strong>Deadline:</strong> {{ task.deadline|date:"M d, Y H:i" }}
+                            {% endif %}
+                            | <strong>Created by:</strong> {{ task.created_by.username }}
+                            {% if task.assigned_to %}
+                                | <strong>Assigned to:</strong> {{ task.assigned_to.username }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="margin-left: 15px;">
+                        <a href="{% url 'todos:task_toggle_complete' task.pk %}" class="btn" style="font-size: 12px; padding: 5px 10px;">
+                            {% if task.completed %}Mark Pending{% else %}Mark Complete{% endif %}
+                        </a>
+                        {% if task.created_by == user or task.assigned_to == user %}
+                            <a href="{% url 'todos:task_update' task.pk %}" class="btn btn-secondary" style="font-size: 12px; padding: 5px 10px;">Edit</a>
+                        {% endif %}
+                        {% if task.created_by == user %}
+                            <a href="{% url 'todos:task_delete' task.pk %}" class="btn btn-secondary" style="font-size: 12px; padding: 5px 10px; background-color: #dc3545;">Delete</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if tasks.has_other_pages %}
+        <div style="margin-top: 20px; text-align: center;">
+            {% if tasks.has_previous %}
+                <a href="?page={{ tasks.previous_page_number }}" class="btn btn-secondary">Previous</a>
+            {% endif %}
+            <span style="margin: 0 15px;">
+                Page {{ tasks.number }} of {{ tasks.paginator.num_pages }}
+            </span>
+            {% if tasks.has_next %}
+                <a href="?page={{ tasks.next_page_number }}" class="btn btn-secondary">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% else %}
+    <p>No tasks found. <a href="{% url 'todos:task_create' %}">Create your first task!</a></p>
+{% endif %}
+{% endblock %}
+

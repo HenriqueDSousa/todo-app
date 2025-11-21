@@ -7,7 +7,13 @@
 
 {% if user.is_authenticated %}
     <h2>Hello, {{ user.username }}!</h2>
-    <p>You are successfully logged in. This is where your todo list will be displayed.</p>
+    <p>You are successfully logged in. Manage your tasks below.</p>
+    
+    <div style="margin-top: 20px;">
+        <a href="{% url 'todos:task_list' %}" class="btn">View My Tasks</a>
+        <a href="{% url 'todos:task_create' %}" class="btn">Create New Task</a>
+        <a href="{% url 'accounts:logout' %}" class="btn btn-secondary">Logout</a>
+    </div>
     
     <div style="margin-top: 20px;">
         <h3>Your Account Info:</h3>
@@ -18,8 +24,6 @@
             <li><strong>Last Login:</strong> {{ user.last_login|date:"M d, Y H:i"|default:"Never" }}</li>
         </ul>
     </div>
-    
-    <a href="{% url 'accounts:logout' %}" class="btn btn-secondary">Logout</a>
 {% else %}
     <h2>Please log in or register to use the Todo App</h2>
     <p>This app allows you to:</p>
@@ -37,4 +41,3 @@
     </div>
 {% endif %}
 {% endblock %}
-#TODO: falta todo em html
