@@ -39,7 +39,7 @@ jobs:
     - name: Run unit and integration tests with coverage
       working-directory: ./todoapp
       run: |
-        coverage run --source='.' manage.py test --exclude-tag=e2e --verbosity=2
+        coverage run --source='.' manage.py test --verbosity=2
         coverage report --show-missing
 
     - name: Run registration tests

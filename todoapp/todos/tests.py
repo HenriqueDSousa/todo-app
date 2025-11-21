@@ -3,7 +3,6 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
-from django.contrib.messages import get_messages
 import pytest
 from todos.models import Task
 from todos.forms import TaskForm, TaskFilterForm
