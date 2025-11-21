@@ -44,5 +44,5 @@ jobs:
     - name: Run E2E tests
       working-directory: ./todoapp
       run: |
-        coverage run --source='.' manage.py test accounts.test_accounts_live_server --verbosity=2
-        coverage report --show-missing
+        coverage run --source='.' manage.py test accounts.test_accounts_live_server --verbosity=2 || exit 1
+        coverage report --show-missing || true

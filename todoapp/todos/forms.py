@@ -54,16 +54,11 @@ class TaskForm(forms.ModelForm):
     
     def clean(self):
         """Additional form validation"""
-        # Update queryset to include creator before validation
-        # This allows validation to pass when we auto-assign to creator
         if self.user:
-            # Check if assigned_to is empty in raw data
             assigned_to_value = None
             if hasattr(self, 'data') and self.data:
                 assigned_to_value = self.data.get('assigned_to', '')
             
-            # If assigned_to is empty, we'll auto-assign to creator
-            # So update queryset to include creator for validation
             if not assigned_to_value or assigned_to_value == '':
                 self.fields['assigned_to'].queryset = User.objects.all()
         
