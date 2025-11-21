@@ -101,16 +101,19 @@ class TaskModelTestCase(TestCase):
     
     def test_task_is_overdue(self):
         """Test checking if a task is overdue"""
-        past_deadline = timezone.now() - timedelta(days=1)
         future_deadline = timezone.now() + timedelta(days=1)
         
+        # Create task with future deadline first, then update to past to bypass validation
         overdue_task = Task.objects.create(
             title='Overdue Task',
             created_by=self.user,
             assigned_to=self.user,
-            deadline=past_deadline,
+            deadline=future_deadline,
             completed=False
         )
+        # Update deadline to past using update() to bypass validation
+        Task.objects.filter(pk=overdue_task.pk).update(deadline=timezone.now() - timedelta(days=1))
+        overdue_task.refresh_from_db()
         
         future_task = Task.objects.create(
             title='Future Task',
@@ -125,14 +128,22 @@ class TaskModelTestCase(TestCase):
     
     def test_task_is_not_overdue_when_completed(self):
         """Test that completed tasks are not considered overdue"""
-        past_deadline = timezone.now() - timedelta(days=1)
+        # Create task with future deadline first, then update to past and complete it
+        future_deadline = timezone.now() + timedelta(days=1)
         task = Task.objects.create(
             title='Completed Overdue Task',
             created_by=self.user,
             assigned_to=self.user,
-            deadline=past_deadline,
-            completed=True
+            deadline=future_deadline,
+            completed=False
         )
+        # Update deadline to past and mark as completed using update() to bypass validation
+        Task.objects.filter(pk=task.pk).update(
+            deadline=timezone.now() - timedelta(days=1),
+            completed=True,
+            completed_at=timezone.now()
+        )
+        task.refresh_from_db()
         
         self.assertFalse(task.is_overdue())
     
@@ -280,7 +291,7 @@ class TaskFormTestCase(TestCase):
             'title': 'New Task',
         }
         form = TaskForm(data=form_data, user=self.user)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), f"Form errors: {form.errors}")
     
     def test_task_form_rejects_past_deadline(self):
         """Test that TaskForm rejects past deadlines"""
@@ -306,9 +317,12 @@ class TaskFormTestCase(TestCase):
             'title': 'New Task',
         }
         form = TaskForm(data=form_data, user=self.user)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), f"Form errors: {form.errors}")
         task = form.save(commit=False)
-        form.clean()
+        task.created_by = self.user
+        # The clean() method should have set assigned_to in cleaned_data
+        # When we save, it will be set correctly
+        task.save()
         self.assertEqual(task.assigned_to, self.user)
 
 
@@ -485,16 +499,29 @@ class TaskViewTestCase(TestCase):
     
     def test_task_list_filter_by_status(self):
         """Test filtering tasks by status"""
-        Task.objects.create(
+        # Create task with completed status directly using update() to bypass validation
+        task = Task.objects.create(
             title='Completed Task',
             created_by=self.user,
             assigned_to=self.user,
+            status='pending',
+            completed=False
+        )
+        # Update status and completed after creation using update() to ensure it's saved
+        Task.objects.filter(pk=task.pk).update(
             status='completed',
-            completed=True
+            completed=True,
+            completed_at=timezone.now()
         )
         
         self.client.force_login(self.user)
-        response = self.client.get(reverse('todos:task_list'), {'status': 'completed'})
+        # Verify task exists with correct status
+        task.refresh_from_db()
+        self.assertEqual(task.status, 'completed')
+        self.assertTrue(task.completed)
+        
+        # Make sure show_completed is True when filtering by status (checkbox needs to be checked)
+        response = self.client.get(reverse('todos:task_list'), {'status': 'completed', 'show_completed': 'on'})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Completed Task')
     
@@ -679,14 +706,21 @@ class TaskIntegrationTestCase(TestCase):
             priority='high',
             status='pending'
         )
-        Task.objects.create(
+        completed_task = Task.objects.create(
             title='Completed Task',
             created_by=self.user,
             assigned_to=self.user,
             priority='medium',
-            status='completed',
-            completed=True
+            status='pending',
+            completed=False
         )
+        # Update status and completed after creation using update() to ensure it's saved
+        Task.objects.filter(pk=completed_task.pk).update(
+            status='completed',
+            completed=True,
+            completed_at=timezone.now()
+        )
+        completed_task.refresh_from_db()
         Task.objects.create(
             title='Low Priority Task',
             created_by=self.user,
@@ -701,8 +735,8 @@ class TaskIntegrationTestCase(TestCase):
         self.assertContains(response, 'High Priority Task')
         self.assertNotContains(response, 'Low Priority Task')
         
-        # Test filtering by status
-        response = self.client.get(reverse('todos:task_list'), {'status': 'completed'})
+        # Test filtering by status (need to include show_completed='on' to show completed tasks)
+        response = self.client.get(reverse('todos:task_list'), {'status': 'completed', 'show_completed': 'on'})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Completed Task')
         
@@ -763,15 +797,18 @@ class TaskIntegrationTestCase(TestCase):
             deadline=future_deadline
         )
         
-        # Create task with past deadline (overdue)
-        past_deadline = timezone.now() - timedelta(days=1)
+        # Create task with future deadline first, then update to past to bypass validation
+        future_deadline_for_overdue = timezone.now() + timedelta(days=1)
         overdue_task = Task.objects.create(
             title='Overdue Task',
             created_by=self.user,
             assigned_to=self.user,
-            deadline=past_deadline,
+            deadline=future_deadline_for_overdue,
             completed=False
         )
+        # Update deadline to past using update() to bypass validation
+        Task.objects.filter(pk=overdue_task.pk).update(deadline=timezone.now() - timedelta(days=1))
+        overdue_task.refresh_from_db()
         
         # View task list and check overdue count
         response = self.client.get(reverse('todos:task_list'))

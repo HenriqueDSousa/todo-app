@@ -41,6 +41,9 @@ class TaskForm(forms.ModelForm):
             self.fields['assigned_to'].queryset = User.objects.exclude(id=self.user.id)
             self.fields['assigned_to'].required = False
             self.fields['assigned_to'].empty_label = "Assign to yourself (or leave empty)"
+        
+        # Make priority optional since model has default
+        self.fields['priority'].required = False
     
     def clean_deadline(self):
         """Validate that deadline is not in the past"""
@@ -51,6 +54,14 @@ class TaskForm(forms.ModelForm):
     
     def clean(self):
         """Additional form validation"""
+        if self.user:
+            assigned_to_value = None
+            if hasattr(self, 'data') and self.data:
+                assigned_to_value = self.data.get('assigned_to', '')
+            
+            if not assigned_to_value or assigned_to_value == '':
+                self.fields['assigned_to'].queryset = User.objects.all()
+        
         cleaned_data = super().clean()
         assigned_to = cleaned_data.get('assigned_to')
         

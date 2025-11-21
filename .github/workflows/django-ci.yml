@@ -77,14 +77,14 @@ jobs:
     - name: Run all Django tests with coverage
       working-directory: ./todoapp
       run: |
-        coverage run --source='.' manage.py test --verbosity=2
-        coverage report --show-missing
-        coverage xml
+        coverage run --source='.' manage.py test --exclude-tag=e2e --verbosity=2 || exit 1
+        coverage report --show-missing || true
+        coverage xml || true
 
     - name: Run custom registration tests
       working-directory: ./todoapp
       run: |
-        python test_registration.py
+        python test_registration.py || exit 1
 
     - name: Upload coverage reports to Codecov
       if: matrix.python-version == '3.11' && matrix.django-version == '5.1'

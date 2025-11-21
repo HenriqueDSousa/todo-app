@@ -72,7 +72,9 @@ class Task(models.Model):
     
     def clean(self):
         """Validate task data"""
-        if self.deadline and self.deadline < timezone.now():
+        # Only validate deadline on creation (when pk is None)
+        # Allow past deadlines for existing tasks (they might have been created in the past)
+        if self.deadline and self.deadline < timezone.now() and self.pk is None:
             raise ValidationError("Deadline cannot be in the past")
         
         if self.completed and not self.completed_at:
