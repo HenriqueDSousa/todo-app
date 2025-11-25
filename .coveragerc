@@ -13,6 +13,7 @@ omit =
     */fixtures/*
     */locale/*
     */node_modules/*
+    *.sh
 
 [report]
 exclude_lines =
